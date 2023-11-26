@@ -1,0 +1,75 @@
+getgenv().Key = Enum.KeyCode.E
+getgenv().Prediction = .13627 -- ---- 0.1247 - 0.1208 - 0.11120 0.1342
+getgenv().Pred2 = .202
+getgenv().Partz = "HumanoidRootPart"
+getgenv().SmoothingValue = 0.0315
+getgenv().AirFunc = false
+getgenv().AirshotPart = "RightLowerLeg"
+
+local Locking = false
+local OldAimPart = getgenv().Partz
+
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(keygo, ok)
+    if (not ok) then
+        if (keygo.KeyCode == getgenv().Key) then
+            Locking = not Locking
+            if Locking then
+                Plr =  getClosestPlayerToCursor()
+            elseif not Locking then
+                if Plr then
+                    Plr = nil
+                end
+            end
+        end
+    end
+end)
+
+function getClosestPlayerToCursor()
+    closestDist = math.huge
+    closestPlr = nil;
+    for i, v in next, game.Players:GetPlayers() do
+        pcall(function()
+            local notKO = v.Character:WaitForChild("BodyEffects")["K.O"].Value ~= true;
+            local notGrabbed = v.Character:FindFirstChild("GRABBING_COINSTRAINT") == nil
+            if v ~= game.Players.LocalPlayer and v.Character and v.Character.Humanoid.Health > 0 then
+                local screenPos, cameraVisible = workspace.CurrentCamera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
+                if cameraVisible then
+                    local distToMouse = (Vector2.new(game.Players.LocalPlayer:GetMouse().X, game.Players.LocalPlayer:GetMouse().Y) - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+                    if distToMouse < closestDist then
+                        closestPlr = v
+                        closestDist = distToMouse
+                    end
+                end
+            end
+        end)
+    end
+    return closestPlr, closestDist
+end
+
+local rawmetatable = getrawmetatable(game)
+local old = rawmetatable.__namecall
+setreadonly(rawmetatable, false)
+rawmetatable.__namecall = newcclosure(function(...)
+    local args = {
+        ...
+    }
+    if Plr ~= nil  and getnamecallmethod() == "FireServer" and args[2] == "UpdateMousePos" then
+        args[3] = Plr.Character[getgenv().Partz].Position + (Plr.Character[getgenv().Partz].Velocity * Prediction)
+        return old(unpack(args))
+    end
+    return old(...)
+end)
+
+
+game:GetService("RunService").RenderStepped:connect(function()
+    if Plr ~= nil then
+        local Main = CFrame.new(workspace.CurrentCamera.CFrame.p, Plr.Character[getgenv().Partz].Position + Plr.Character[getgenv().Partz].Velocity * getgenv().Pred2)
+        workspace.CurrentCamera.CFrame = workspace.CurrentCamera.CFrame:Lerp(Main, getgenv().SmoothingValue, Enum.EasingStyle.Elastic, Enum.EasingDirection.InOut)
+    end
+    if Plr.Character.Humanoid.FloorMaterial == Enum.Material.Air and getgenv().AirFunc then
+        getgenv().Partz = getgenv().AirshotPart
+    else
+        getgenv().Partz = OldAimPart
+    end
+end)
