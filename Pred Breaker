@@ -1,0 +1,33 @@
+local Toggle = false
+game:GetService("UserInputService").InputBegan:Connect(function(keybind, processed)
+    if keybind.KeyCode == Enum.KeyCode.B and processed == false then
+        if Toggle == false then
+                   game.StarterGui:SetCore("SendNotification", {
+                Title = "AA",
+                Text = "Enabled"
+            })
+            Toggle = true
+        elseif Toggle == true then
+                   game.StarterGui:SetCore("SendNotification", {
+                Title = "AA",
+                Text = "Disabled"
+            })
+            Toggle = false
+        end
+    end
+end)
+
+
+game.RunService.Heartbeat:Connect(function()
+    if Toggle  then
+        local Old =  game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity
+        game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity =game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity * 2
+        game.RunService.RenderStepped:Wait()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity = Old
+    end
+end)
+
+         game.StarterGui:SetCore("SendNotification", {
+                Title = "AA",
+                Text = "Loaded"
+            })
