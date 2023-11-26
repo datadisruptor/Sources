@@ -1,0 +1,61 @@
+local framedUID = 1246814557
+local framedUser = "0Xz7d"
+
+local CopyAppearance = true
+local HasHeadLess = true
+local HasKorblox = true
+
+function Morph(UserId,Name)
+    local appearance = game.Players:GetCharacterAppearanceAsync(UserId)
+    local player = game.Players:FindFirstChild(Name)
+    for i,v in pairs(player.Character:GetChildren()) do
+        if v:IsA("Accessory") or v:IsA("Shirt") or v:IsA("Pants") or v:IsA("CharacterMesh") or v:IsA("BodyColors") then
+            v:Destroy()
+        end
+    end
+    if player.Character.Head:FindFirstChild("face") then
+        player.Character.Head.face:Destroy()
+    end
+    for i,v in pairs(appearance:GetChildren()) do
+        if v:IsA("Shirt") or v:IsA("Pants") or v:IsA("BodyColors") then
+            v.Parent = player.Character
+        elseif v:IsA("Accessory") then
+            player.Character.Humanoid:AddAccessory(v)
+        elseif v.Name == "R15" then
+            if player.Character.Humanoid.RigType == Enum.HumanoidRigType.R15 then
+                v:FindFirstChildOfClass("CharacterMesh").Parent = player.Character
+            end
+        end
+    end
+    if appearance:FindFirstChild("face") then
+        appearance.face.Parent = player.Character.Head
+    else
+        local face = Instance.new("Decal")
+        face.Face = "Front"
+        face.Name = "face"
+        face.Texture = "rbxasset://textures/face.png"
+        face.Transparency = 0
+        face.Parent = player.Character.Head
+    end
+    local parent = player.Character.Parent
+    player.Character.Parent = nil
+    player.Character.Parent = parent
+end
+
+if CopyAppearance == true then
+
+    if HasHeadLess == true then
+        game.Players.LocalPlayer.Character.Head.MeshId=6686307858
+    end
+    if HasKorblox == true then
+        game.Players.LocalPlayer.Character.RightLowerLeg.MeshId = "902942093"
+        game.Players.LocalPlayer.Character.RightLowerLeg.Transparency = "1"
+        game.Players.LocalPlayer.Character.RightUpperLeg.MeshId = "http://www.roblox.com/asset/?id=902942096"
+        game.Players.LocalPlayer.Character.RightUpperLeg.TextureID = "http://roblox.com/asset/?id=902843398"
+        game.Players.LocalPlayer.Character.RightFoot.MeshId = "902942089"
+        game.Players.LocalPlayer.Character.RightFoot.Transparency = "1"
+    end
+    Morph(framedUID,game.Players.LocalPlayer.Name)
+end
+
+game.Players.LocalPlayer.Name = framedUser
